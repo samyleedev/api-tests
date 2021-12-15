@@ -1,15 +1,11 @@
 import Hapi from "@hapi/hapi";
-// import { getComments } from "./queries.js";
-import pg from "pg";
-const { Pool } = pg;
-
-const pool = new Pool({
-  user: "postgres",
-  host: "localhost",
-  database: "api-test",
-  password: "admin",
-  port: 5432,
-});
+import {
+  getComments,
+  getCommentById,
+  createComment,
+  deleteComment,
+  updateComment,
+} from "./queries.js";
 
 const init = async () => {
   const server = Hapi.server({
@@ -20,39 +16,32 @@ const init = async () => {
   server.route({
     method: "GET",
     path: "/api/comments",
-    handler: async (request, h) => {
-      await pool.query("SELECT * FROM comment", (error, results) => {
-        if (error) {
-          throw error;
-        }
-        console.log(h.response(results.rows));
-      });
-    },
+    handler: getComments,
   });
 
-  // server.route({
-  //   method: "GET",
-  //   path: "/api/comments/{id}",
-  //   handler: getComments,
-  // });
+  server.route({
+    method: "GET",
+    path: "/api/comments/{id}",
+    handler: getCommentById,
+  });
 
-  // server.route({
-  //   method: "POST",
-  //   path: "/api/comments",
-  //   handler: getComments,
-  // });
+  server.route({
+    method: "POST",
+    path: "/api/comments",
+    handler: createComment,
+  });
 
-  // server.route({
-  //   method: "PUT",
-  //   path: "/api/comments/{id}",
-  //   handler: getComments,
-  // });
+  server.route({
+    method: "PUT",
+    path: "/api/comments/{id}",
+    handler: updateComment,
+  });
 
-  // server.route({
-  //   method: "DELETE",
-  //   path: "/api/comments/{id}",
-  //   handler: getComments,
-  // });
+  server.route({
+    method: "DELETE",
+    path: "/api/comments/{id}",
+    handler: deleteComment,
+  });
 
   await server.start();
   console.log("Server running on %s", server.info.uri);

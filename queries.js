@@ -9,64 +9,41 @@ const pool = new Pool({
   port: 5432,
 });
 
-export const getComments = (request, response) => {
-  pool.query("SELECT * FROM comment", (error, results) => {
-    if (error) {
-      throw error;
-    }
-    return response.status(200).json(results.rows);
-  });
+export const getComments = (request, h) => {
+  return pool
+    .query("SELECT * FROM comment")
+    .then((results) => h.response(results.rows));
 };
 
-export const getCommentById = (request, response) => {
+export const getCommentById = (request, h) => {
   const id = parseInt(request.params.id);
 
-  pool.query("SELECT * FROM comment WHERE id = $1", [id], (error, results) => {
-    if (error) {
-      throw error;
-    }
-    response.status(200).json(results.rows);
-  });
+  return pool
+    .query("SELECT * FROM comment WHERE id = $1", [id])
+    .then((results) => h.response(results.rows));
 };
 
-export const createComment = (request, response) => {
-  const { content } = request.body;
+export const createComment = (request, h) => {
+  const { content } = request.payload;
 
-  pool.query(
-    "INSERT INTO comment (content) VALUES ($1)",
-    [content],
-    (error, results) => {
-      if (error) {
-        throw error;
-      }
-      response.status(201).send(`Comment added with ID: ${result.insertId}`);
-    }
-  );
+  return pool
+    .query("INSERT INTO comment (content) VALUES ($1)", [content])
+    .then((results) => h.response(results));
 };
 
-export const updateComment = (request, response) => {
+export const updateComment = (request, h) => {
   const id = parseInt(request.params.id);
-  const { content } = request.body;
+  const { content } = request.payload;
 
-  pool.query(
-    "UPDATE comment SET content = $1 WHERE id = $2",
-    [content, id],
-    (error, results) => {
-      if (error) {
-        throw error;
-      }
-      response.status(200).send(`Comment modified with ID: ${id}`);
-    }
-  );
+  return pool
+    .query("UPDATE comment SET content = $1 WHERE id = $2", [content, id])
+    .then((results) => h.response(results));
 };
 
-export const deleteComment = (request, response) => {
+export const deleteComment = (request, h) => {
   const id = parseInt(request.params.id);
 
-  pool.query("DELETE FROM comment WHERE id = $1", [id], (error, results) => {
-    if (error) {
-      throw error;
-    }
-    response.status(200).send(`Comment deleted with ID: ${id}`);
-  });
+  return pool
+    .query("DELETE FROM comment WHERE id = $1", [id])
+    .then((results) => h.response(results));
 };
